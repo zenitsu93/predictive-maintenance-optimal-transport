@@ -1,11 +1,45 @@
-# Predictive Anomaly Detection using Optimal Transport and Time Series Forecasting
+# Détection d'anomalies pour la maintenance prédictive par transport optimal
 
-**Authors**: Adil AHIDAR, Issiaka KANAZOE, Landry Yves Joel SEBEOGO, Namou Karl Alban KADEWA, Palingwend Sosthène ZONGO, Thomas Christian BADOLO  
-**Affiliation**: Ecole Centrale Casablanca, Morocco  
-**Corresponding Author(s)**: [Issiaka KANAZOE](mailto:issiaka.kanazoe@centrale-casablanca.ma)  
-**Contributing Authors**: [Adil AHIDAR](mailto:adil.ahidar@centrale-casablanca.ma), [Landry Yves Joel SEBEOGO](mailto:landry.sebeogo@centrale-casablanca.ma), [Namou Karl Alban KADEWA](mailto:alban.kadewa@centrale-casablanca.ma), [Palingwend Sosthène ZONGO](mailto:sosthene.zongo@centrale-casablanca.ma), [Thomas Christian BADOLO](mailto:christian.badolo@centrale-casablanca.ma)  
+**Auteurs** : Adil AHIDAR, Issiaka KANAZOE, Landry Yves Joel SEBEOGO, Namou Karl Alban KADEWA, Palingwend Sosthène ZONGO, Thomas Christian BADOLO
+**Affiliation** : École Centrale Casablanca
 
-## Abstract
-This paper presents a novel approach to predictive anomaly detection by combining time series forecasting and Sinkhorn Optimal Transport. Leveraging the advantages of Sinkhorn Optimal Transport in efficiently aligning probability distributions, the framework enhances predictive accuracy in identifying abnormal events across various industrial data types. Comparative analysis with the established One-Class SVM demonstrates the effectiveness of the proposed approach in anomaly detection. Integration of evolutionary representations, specifically time series forecasting, offers a comprehensive solution for proactive maintenance in technology-dependent industrial settings. The proposed framework exhibits multi-feature anomaly detection capabilities, addressing challenges in monitoring diverse system metrics. Experimental validation on a comprehensive dataset confirms the robustness and accuracy of the approach, indicating its potential for real-world industrial applications.
+Détecter qu'une machine dérive, avant qu'elle ne tombe en panne, en combinant prévision de séries temporelles et **transport optimal**.
 
-**Keywords**: predictive maintenance, anomaly detection, time series forecasting, optimal transport, One-Class SVM, Sinkhorn algorithm
+## L'idée
+
+La maintenance prédictive se heurte à une difficulté : on dispose de beaucoup de données de fonctionnement normal et de très peu de pannes. Entraîner un classifieur supervisé est donc mal posé — il n'y a presque rien à lui montrer du côté des défaillances.
+
+L'approche retenue contourne le problème. Plutôt que d'apprendre à reconnaître une panne, on apprend à quoi ressemble le **fonctionnement normal**, et on mesure l'écart.
+
+Le transport optimal fournit précisément cette mesure d'écart entre deux distributions : il quantifie le coût minimal pour transformer l'une en l'autre. Appliqué à une fenêtre d'observations récentes contre une fenêtre de référence, il donne une distance qui augmente quand le comportement de la machine change — sans qu'on ait eu besoin d'un seul exemple de panne.
+
+L'avantage sur des critères plus simples est qu'il tient compte de la **géométrie** des distributions : deux histogrammes qui ne se recouvrent pas du tout obtiennent une divergence de Kullback-Leibler infinie, alors que le transport optimal les distingue selon leur éloignement réel.
+
+## Résultats
+
+![Séries temporelles observées](assets/predictive_maintenance-1.png)
+
+![Prévision et écart](assets/predictive_maintenance-2.png)
+
+![Distance de transport dans le temps](assets/predictive_maintenance-7.png)
+
+## Contenu du dépôt
+
+| Fichier | Rôle |
+| --- | --- |
+| `Predictive_Maintenance.ipynb` | Analyse, prévision et détection |
+| `Optimal transport and machine learning for predictive maintenance.pdf` | L'article complet |
+| `assets/` | Figures extraites du carnet |
+
+## Exécution
+
+```bash
+pip install numpy pandas scikit-learn pot matplotlib jupyter
+jupyter notebook Predictive_Maintenance.ipynb
+```
+
+`pot` est la bibliothèque Python Optimal Transport.
+
+## Portée
+
+Le seuil de déclenchement reste le point délicat : trop bas, l'alerte se déclenche sur du bruit et perd sa crédibilité auprès des équipes de maintenance ; trop haut, elle arrive trop tard pour servir à quelque chose. Le fixer demande de connaître le coût d'une intervention inutile comparé à celui d'un arrêt subi.
